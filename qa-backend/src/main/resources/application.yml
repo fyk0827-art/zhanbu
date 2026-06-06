@@ -1,0 +1,48 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: qa-collector
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/qa_collector?useSSL=false&serverTimezone=UTC}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+# CORS
+cors:
+  allowed-origins: "*"
+
+# JWT
+jwt:
+  secret: ${JWT_SECRET:qa-collector-dev-jwt-secret-change-me}
+  expiration: 86400000
+
+# Admin default
+admin:
+  username: admin
+  password: admin123
+
+# Partner report platform (confirm-payment)
+partner:
+  api-base-url: http://39.97.224.240:8848
+  webhook-secret: ${PARTNER_WEBHOOK_SECRET:}
+  standard-amount-cents: 1900  # 默认金额；confirm-payment 会传实际收款金额
+
+paypal:
+  mode: ${PAYPAL_MODE:sandbox}
+  client-id: ${PAYPAL_CLIENT_ID:}
+  client-secret: ${PAYPAL_CLIENT_SECRET:}
+
+logging:
+  level:
+    com.qacollector: INFO

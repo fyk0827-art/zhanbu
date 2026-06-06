@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Frontend build/cache
+dist/
+dist-ssr/
+.npm-cache/
+*.tsbuildinfo
+
+# Backend build
+target/
+
+# Logs
+logs/
+*.log
+
+# Local env/config
+.env
+.env.*
+!.env.example
+*.local
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
