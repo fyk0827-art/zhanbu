@@ -3,6 +3,7 @@ import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
 const resources: Record<string, { translation: Record<string, string> }> = {};
+const APP_LANGUAGE_STORAGE_KEY = "zhanbuLng";
 
 const translations: Record<string, Record<string, string>> = {
   en: {
@@ -1376,23 +1377,6 @@ for (const [lang, trans] of Object.entries(translations)) {
   resources[lang] = { translation: trans };
 }
 
-i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    resources,
-    fallbackLng: "en",
-    detection: {
-      order: ["localStorage", "navigator", "htmlTag"],
-      caches: ["localStorage"],
-    },
-    interpolation: {
-      escapeValue: false,
-    },
-  });
-
-export default i18n;
-
 export const languages = [
   { code: "en", name: "English", native: "English", flag: "EN" },
   { code: "zh", name: "Chinese", native: "中文", flag: "ZH" },
@@ -1405,3 +1389,54 @@ export const languages = [
   { code: "ru", name: "Russian", native: "Русский", flag: "RU" },
   { code: "ar", name: "Arabic", native: "العربية", flag: "AR" },
 ];
+
+const supportedLanguageCodes = languages.map((lang) => lang.code);
+
+export function normalizeLanguage(language?: string | null) {
+  const baseCode = language?.toLowerCase().split("-")[0];
+  return supportedLanguageCodes.includes(baseCode || "") ? baseCode! : "en";
+}
+
+export function getCurrentLanguage(language?: string | null) {
+  return languages.find((lang) => lang.code === normalizeLanguage(language)) || languages[0];
+}
+
+export function changeAppLanguage(language: string) {
+  const normalizedLanguage = normalizeLanguage(language);
+  localStorage.setItem(APP_LANGUAGE_STORAGE_KEY, normalizedLanguage);
+  return i18n.changeLanguage(normalizedLanguage);
+}
+
+function syncDocumentLanguage(language: string) {
+  if (typeof document === "undefined") return;
+  const normalizedLanguage = normalizeLanguage(language);
+  document.documentElement.lang = normalizedLanguage;
+  document.documentElement.dir = normalizedLanguage === "ar" ? "rtl" : "ltr";
+}
+
+i18n
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    resources,
+    fallbackLng: "en",
+    supportedLngs: supportedLanguageCodes,
+    nonExplicitSupportedLngs: true,
+    load: "languageOnly",
+    cleanCode: true,
+    detection: {
+      order: ["localStorage", "navigator", "htmlTag"],
+      lookupLocalStorage: APP_LANGUAGE_STORAGE_KEY,
+      caches: [],
+    },
+    interpolation: {
+      escapeValue: false,
+    },
+  })
+  .then(() => {
+    syncDocumentLanguage(i18n.resolvedLanguage || i18n.language);
+  });
+
+i18n.on("languageChanged", syncDocumentLanguage);
+
+export default i18n;

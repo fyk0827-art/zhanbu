@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router";
 import { Menu, X, Shield } from "lucide-react";
-import { languages } from "@/i18n";
+import { changeAppLanguage, languages, normalizeLanguage } from "@/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Header() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const currentLangCode = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#E8E4DC] bg-[#FFFDF5]/95 backdrop-blur-md">
@@ -75,11 +76,11 @@ export default function Header() {
                   <button
                     key={lang.code}
                     onClick={() => {
-                      i18n.changeLanguage(lang.code);
+                      changeAppLanguage(lang.code);
                       setMobileOpen(false);
                     }}
                     className={`rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                      i18n.language === lang.code
+                      currentLangCode === lang.code
                         ? "bg-[#E8C547]/15 font-medium text-[#2D2A26]"
                         : "text-[#6B6560] hover:bg-[#E8C547]/5"
                     }`}

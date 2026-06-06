@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Globe } from "lucide-react";
-import { languages } from "@/i18n";
+import { changeAppLanguage, getCurrentLanguage, languages, normalizeLanguage } from "@/i18n";
 
 type LanguageSwitcherProps = {
   className?: string;
@@ -15,7 +15,8 @@ export default function LanguageSwitcher({
 }: LanguageSwitcherProps) {
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
-  const currentLang = languages.find((l) => l.code === i18n.language) || languages[0];
+  const currentLang = getCurrentLanguage(i18n.resolvedLanguage || i18n.language);
+  const currentLangCode = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
 
   return (
     <div className={`relative ${className}`}>
@@ -42,18 +43,18 @@ export default function LanguageSwitcher({
                 key={lang.code}
                 type="button"
                 onClick={() => {
-                  i18n.changeLanguage(lang.code);
+                  changeAppLanguage(lang.code);
                   setOpen(false);
                 }}
                 className={`flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors hover:bg-[#FFFDF5] ${
-                  i18n.language === lang.code
+                  currentLangCode === lang.code
                     ? "bg-[#E8C547]/10 font-medium text-[#2D2A26]"
                     : "text-[#6B6560]"
                 }`}
               >
                 <span className="text-xs">{lang.flag}</span>
                 <span>{lang.native}</span>
-                {i18n.language === lang.code && (
+                {currentLangCode === lang.code && (
                   <span className="ml-auto text-[#E8C547]">✓</span>
                 )}
               </button>
