@@ -23,6 +23,7 @@ public class QuestionService {
     private final AnswerRepository answerRepository;
 
     public List<QuestionDTO> getRandomQuestions(Long ageGroupId, String language, int limit) {
+        String requestedLanguage = normalizeLanguage(language);
         List<Question> questions = questionRepository.findRandomByAgeGroupId(ageGroupId, limit);
         List<QuestionDTO> result = new ArrayList<>();
 
@@ -33,16 +34,16 @@ public class QuestionService {
 
             // Get translation - try requested language, fallback to localized defaults, then English
             Optional<QuestionTranslation> trans = translationRepository
-                .findByQuestionIdAndLanguageCode(q.getId(), language);
+                .findByQuestionIdAndLanguageCode(q.getId(), requestedLanguage);
             boolean usedEnglishFallback = false;
-            if (trans.isEmpty() && !"en".equals(language)) {
+            if (trans.isEmpty() && !"en".equals(requestedLanguage)) {
                 trans = translationRepository.findByQuestionIdAndLanguageCode(q.getId(), "en");
                 usedEnglishFallback = trans.isPresent();
             }
             String title = trans.map(QuestionTranslation::getTitle).orElse("Question #" + q.getId());
             String description = trans.map(QuestionTranslation::getDescription).orElse("");
             if (usedEnglishFallback) {
-                LocalizedQuestion localized = localizeQuestion(title, language);
+                LocalizedQuestion localized = localizeQuestion(title, requestedLanguage);
                 title = localized.title();
                 description = localized.description();
             }
@@ -68,7 +69,7 @@ public class QuestionService {
             for (QuestionOption o : opts) {
                 OptionDTO od = new OptionDTO();
                 od.setKey(o.getOptionKey());
-                od.setText(localizeOption(o.getOptionText(), language));
+                od.setText(localizeOption(o.getOptionText(), requestedLanguage));
                 optDtos.add(od);
             }
             dto.setOptions(optDtos);

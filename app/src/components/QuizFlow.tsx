@@ -5,6 +5,7 @@ import { X, ArrowRight, Check, Sparkles, Loader2, Lock, CreditCard } from "lucid
 import { questionApi, paymentApi, settingsApi } from "@/services/api";
 import type { QuestionDTO, SubmitAnswerRequest } from "@/types/api";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { normalizeLanguage } from "@/i18n";
 
 declare global {
   interface Window {
@@ -336,7 +337,7 @@ const QUIZ_COPY: Record<string, Record<string, string>> = {
 
 export default function QuizFlow({ ageGroups, onClose }: QuizFlowProps) {
   const { i18n } = useTranslation();
-  const lang = i18n.language.split("-")[0];
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const qc = (key: string, values?: Record<string, string | number>) => {
     let text = QUIZ_COPY[lang]?.[key] || QUIZ_COPY.en[key] || key;
     Object.entries(values || {}).forEach(([name, value]) => {
@@ -382,10 +383,10 @@ export default function QuizFlow({ ageGroups, onClose }: QuizFlowProps) {
   const questionCount = publicSettings?.quizQuestionCount ?? 5;
 
   const { data: fetchedQuestions, isLoading: questionsLoading } = useQuery({
-    queryKey: ["questions", matchedGroup?.id, i18n.language, questionCount],
+    queryKey: ["questions", matchedGroup?.id, lang, questionCount],
     queryFn: () =>
       matchedGroup
-        ? questionApi.list(matchedGroup.id, i18n.language)
+        ? questionApi.list(matchedGroup.id, lang)
         : Promise.resolve([] as QuestionDTO[]),
     enabled: !!matchedGroup && step === "answering",
   });

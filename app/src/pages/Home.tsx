@@ -12,7 +12,7 @@ import gsap from "gsap";
 gsap.registerPlugin();
 
 export default function Home() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showQuiz, setShowQuiz] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const paypalReturnHandled = useRef(false);
@@ -94,6 +94,20 @@ export default function Home() {
     sessionStorage.setItem("qaTestTaken", "true");
   };
 
+  const getAgeGroupName = (group: { name: string; minAge: number; maxAge: number }) => {
+    const lang = i18n.resolvedLanguage?.split("-")[0] || i18n.language.split("-")[0] || "en";
+    const key = `${group.minAge}-${group.maxAge}`;
+    const names: Record<string, Record<string, string>> = {
+      "3-12": { en: "Children", zh: "儿童", es: "Niños", fr: "Enfants", ja: "子ども", de: "Kinder", ko: "어린이", pt: "Crianças", ru: "Дети", ar: "الأطفال" },
+      "13-17": { en: "Teenagers", zh: "青少年", es: "Adolescentes", fr: "Adolescents", ja: "10代", de: "Teenager", ko: "청소년", pt: "Adolescentes", ru: "Подростки", ar: "المراهقون" },
+      "18-25": { en: "Young Adults", zh: "青年", es: "Jóvenes adultos", fr: "Jeunes adultes", ja: "若年成人", de: "Junge Erwachsene", ko: "청년", pt: "Jovens adultos", ru: "Молодые взрослые", ar: "الشباب" },
+      "26-40": { en: "Adults", zh: "成年人", es: "Adultos", fr: "Adultes", ja: "成人", de: "Erwachsene", ko: "성인", pt: "Adultos", ru: "Взрослые", ar: "البالغون" },
+      "41-60": { en: "Middle-aged", zh: "中年", es: "Mediana edad", fr: "Âge moyen", ja: "中年", de: "Mittleres Alter", ko: "중년", pt: "Meia-idade", ru: "Средний возраст", ar: "منتصف العمر" },
+      "60-120": { en: "Seniors", zh: "老年", es: "Mayores", fr: "Seniors", ja: "シニア", de: "Senioren", ko: "노년", pt: "Idosos", ru: "Пожилые", ar: "كبار السن" },
+    };
+    return names[key]?.[lang] || names[key]?.en || group.name;
+  };
+
   const steps = [
     { icon: Search, num: "01", title: t("step1NewTitle", "Tell Us Your Age"), desc: t("step1NewDesc", "Answer one simple question about your age so we can match you to the right questions.") },
     { icon: PenLine, num: "02", title: t("step2NewTitle", "Answer Questions"), desc: t("step2NewDesc", "We'll randomly select questions tailored to your age group. Answer them one by one at your own pace.") },
@@ -139,7 +153,7 @@ export default function Home() {
                 key={g.id}
                 className="rounded-full border border-[#E8E4DC] bg-white px-4 py-2 text-xs font-medium text-[#6B6560] shadow-sm"
               >
-                {g.name} <span className="text-[#E07A5F]">${g.price.toFixed(2)}</span>
+                {getAgeGroupName(g)} <span className="text-[#E07A5F]">${g.price.toFixed(2)}</span>
               </span>
             ))}
           </div>
