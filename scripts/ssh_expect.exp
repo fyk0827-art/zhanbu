@@ -1,0 +1,36 @@
+#!/usr/bin/expect -f
+
+set timeout -1
+
+if {$argc < 3} {
+  puts stderr "usage: ssh_expect.exp <host> <user> <password> ?remote_command...?"
+  exit 2
+}
+
+set host [lindex $argv 0]
+set user [lindex $argv 1]
+set password [lindex $argv 2]
+set remote_command [join [lrange $argv 3 end] " "]
+
+set ssh_args [list ssh -tt -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no "$user@$host"]
+
+if {[string length $remote_command] > 0} {
+  lappend ssh_args $remote_command
+}
+
+eval spawn $ssh_args
+
+expect {
+  -re ".*yes/no.*" {
+    send "yes\r"
+    exp_continue
+  }
+  -re ".*assword:.*" {
+    send "$password\r"
+    exp_continue
+  }
+  eof
+}
+
+catch wait result
+exit [lindex $result 3]
