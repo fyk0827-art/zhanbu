@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -12,6 +11,7 @@ export default function Footer() {
             <h3 className="mb-2 font-['Fredoka'] text-2xl text-[#E8C547]">{t("appName")}</h3>
             <p className="text-sm text-[#6B6560]">{t("tagline")}</p>
           </div>
+          {/* 
           <div className="flex gap-6">
             <Link to="/" className="text-sm text-white/60 transition-colors hover:text-white">
               {t("home")}
@@ -26,6 +26,7 @@ export default function Footer() {
               {t("adminLink")}
             </Link>
           </div>
+          */}
         </div>
         <div className="border-t border-white/10 pt-8 text-center">
           <p className="text-xs text-[#6B6560]">
