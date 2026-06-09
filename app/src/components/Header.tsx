@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router";
-import { Menu, X, Shield } from "lucide-react";
+import { Link } from "react-router";
+import { Menu, X } from "lucide-react";
 import { changeAppLanguage, languages, normalizeLanguage } from "@/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Header() {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const currentLangCode = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
 
@@ -20,6 +19,7 @@ export default function Header() {
 
         {/* Desktop Nav */}
         <nav className="hidden items-center gap-6 md:flex">
+          {/* 
           <Link to="/" className="text-[15px] font-medium text-[#2D2A26] transition-colors hover:text-[#E8C547]">
             {t("home")}
           </Link>
@@ -36,6 +36,7 @@ export default function Header() {
             <Shield size={16} />
             {t("adminLink")}
           </button>
+          */}
 
           <LanguageSwitcher />
         </nav>
@@ -50,6 +51,7 @@ export default function Header() {
       {mobileOpen && (
         <div className="border-t border-[#E8E4DC] bg-[#FFFDF5] px-6 py-4 md:hidden">
           <nav className="flex flex-col gap-4">
+            {/*
             <Link to="/" onClick={() => setMobileOpen(false)} className="text-lg font-medium text-[#2D2A26]">
               {t("home")}
             </Link>
@@ -69,6 +71,7 @@ export default function Header() {
               <Shield size={18} />
               {t("adminLink")}
             </button>
+            */}
             <div className="border-t border-[#E8E4DC] pt-4">
               <p className="mb-2 text-sm font-medium text-[#6B6560]">{t("language")}</p>
               <div className="grid grid-cols-2 gap-2">
