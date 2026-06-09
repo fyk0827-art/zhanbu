@@ -46,6 +46,21 @@ export interface AnswerDTO {
   createdAt?: string;
 }
 
+export interface AdminPaymentDTO {
+  id: number;
+  tradeNo: string;
+  questionId: number;
+  ageGroupId: number;
+  amount: number;
+  currency: string;
+  status: string;
+  provider?: string;
+  providerOrderId?: string;
+  partnerOrderId?: string;
+  createdAt?: string;
+  completedAt?: string;
+}
+
 export interface PageDTO<T> {
   items: T[];
   total: number;
@@ -112,6 +127,10 @@ export interface PaymentCreateResponse {
 export interface PaymentCompleteRequest {
   tradeNo: string;
   paypalOrderId: string;
+}
+
+export interface PaymentCancelRequest {
+  tradeNo: string;
 }
 
 export interface PaymentCompleteResponse {

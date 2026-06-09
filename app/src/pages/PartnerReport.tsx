@@ -33,7 +33,11 @@ export default function PartnerReport() {
     }
 
     handledReturn.current = true;
+    const tradeNo = params.get("tradeNo") || sessionStorage.getItem("pendingPayPalTradeNo") || "";
     if (paypalReturn === "cancel") {
+      if (tradeNo) {
+        paymentApi.cancel({ tradeNo }).catch(() => undefined);
+      }
       sessionStorage.removeItem("pendingPayPalTradeNo");
       sessionStorage.removeItem("pendingPayPalOrderId");
       setLoading(false);
@@ -41,7 +45,6 @@ export default function PartnerReport() {
       return;
     }
 
-    const tradeNo = params.get("tradeNo") || sessionStorage.getItem("pendingPayPalTradeNo") || "";
     const paypalOrderId = params.get("token") || sessionStorage.getItem("pendingPayPalOrderId") || "";
     if (!tradeNo || !paypalOrderId) {
       setLoading(false);

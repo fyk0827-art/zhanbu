@@ -39,8 +39,12 @@ export default function Home() {
 
     paypalReturnHandled.current = true;
     const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+    const tradeNo = params.get("tradeNo") || sessionStorage.getItem("pendingPayPalTradeNo") || "";
 
     if (paypalReturn === "cancel") {
+      if (tradeNo) {
+        paymentApi.cancel({ tradeNo }).catch(() => undefined);
+      }
       sessionStorage.removeItem("pendingPayPalTradeNo");
       sessionStorage.removeItem("pendingPayPalOrderId");
       window.history.replaceState({}, "", cleanUrl);
@@ -49,7 +53,6 @@ export default function Home() {
       return;
     }
 
-    const tradeNo = params.get("tradeNo") || sessionStorage.getItem("pendingPayPalTradeNo") || "";
     const paypalOrderId = params.get("token") || sessionStorage.getItem("pendingPayPalOrderId") || "";
     if (!tradeNo || !paypalOrderId) {
       window.history.replaceState({}, "", cleanUrl);

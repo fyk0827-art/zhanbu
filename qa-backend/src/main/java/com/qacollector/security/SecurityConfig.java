@@ -70,6 +70,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/age-groups/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/questions/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/answers/**").hasRole("ADMIN")
+                .requestMatchers("/api/admin/payments/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/age-groups/**").permitAll()
                 // Everything else requires authentication

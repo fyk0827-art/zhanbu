@@ -27,4 +27,10 @@ public class PaymentController {
     public ApiResponse<PaymentCompleteResponse> complete(@RequestBody PaymentCompleteRequest req) {
         return ApiResponse.ok(localPaymentService.completePayment(req));
     }
+
+    @PostMapping("/cancel")
+    public ApiResponse<Void> cancel(@RequestBody PaymentCancelRequest req) {
+        localPaymentService.cancelPayment(req);
+        return ApiResponse.ok(null);
+    }
 }

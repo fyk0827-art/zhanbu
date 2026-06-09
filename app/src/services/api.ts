@@ -5,6 +5,7 @@ import type {
   QuestionDTO,
   AdminQuestionDTO,
   AnswerDTO,
+  AdminPaymentDTO,
   PageDTO,
   LoginRequest,
   LoginResponse,
@@ -14,6 +15,7 @@ import type {
   PaymentCreateRequest,
   PaymentCreateResponse,
   PaymentCompleteRequest,
+  PaymentCancelRequest,
   PaymentCompleteResponse,
   PaymentConfig,
   PublicSettings,
@@ -126,11 +128,28 @@ export const answerApi = {
     get<PageDTO<AnswerDTO>>("/admin/answers", { page, pageSize }),
 };
 
+export const adminPaymentApi = {
+  list: (
+    page: number = 1,
+    pageSize: number = 20,
+    status?: string,
+    keyword?: string
+  ) =>
+    get<PageDTO<AdminPaymentDTO>>("/admin/payments", {
+      page,
+      pageSize,
+      ...(status ? { status } : {}),
+      ...(keyword ? { keyword } : {}),
+    }),
+};
+
 // ======== Payment API (server-side mock/live) ========
 export const paymentApi = {
   config: () => get<PaymentConfig>("/payments/config"),
   create: (req: PaymentCreateRequest) =>
     post<PaymentCreateResponse>("/payments/create", req),
+  cancel: (req: PaymentCancelRequest) =>
+    post<void>("/payments/cancel", req),
   complete: (req: PaymentCompleteRequest) =>
     post<PaymentCompleteResponse>("/payments/complete", req),
 };

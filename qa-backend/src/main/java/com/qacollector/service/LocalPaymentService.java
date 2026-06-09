@@ -97,28 +97,49 @@ public class LocalPaymentService {
             return toCompleteResponse(payment);
         }
 
-        if (req.getPaypalOrderId() == null || req.getPaypalOrderId().isBlank()) {
-            throw new IllegalArgumentException("paypalOrderId is required");
+        try {
+            if (req.getPaypalOrderId() == null || req.getPaypalOrderId().isBlank()) {
+                markFailed(payment);
+                throw new IllegalArgumentException("paypalOrderId is required");
+            }
+            if (!req.getPaypalOrderId().equals(payment.getProviderOrderId())) {
+                markFailed(payment);
+                throw new IllegalArgumentException("PayPal order does not match this payment");
+            }
+
+            payPalPaymentService.captureOrder(req.getPaypalOrderId());
+
+            PartnerConfirmRequest partnerReq = new PartnerConfirmRequest();
+            partnerReq.setTradeNo(payment.getTradeNo());
+            partnerReq.setAmount(amountToCents(payment.getAmount()));
+
+            PartnerConfirmResponse partnerRes = partnerPaymentService.confirmPayment(partnerReq);
+            payment.setStatus("completed");
+            payment.setCompletedAt(LocalDateTime.now());
+            payment.setPartnerOrderId(partnerRes.getOrderId());
+            payment.setPartnerFrontendUrl(partnerRes.getFrontendUrl());
+            paymentRepository.save(payment);
+
+            return toCompleteResponse(payment);
+        } catch (RuntimeException ex) {
+            markFailed(payment);
+            throw ex;
         }
-        if (!req.getPaypalOrderId().equals(payment.getProviderOrderId())) {
-            throw new IllegalArgumentException("PayPal order does not match this payment");
+    }
+
+    @Transactional
+    public void cancelPayment(PaymentCancelRequest req) {
+        if (req.getTradeNo() == null || req.getTradeNo().isBlank()) {
+            throw new IllegalArgumentException("tradeNo is required");
         }
 
-        payPalPaymentService.captureOrder(req.getPaypalOrderId());
+        PaymentRecord payment = paymentRepository.findByTradeNo(req.getTradeNo())
+            .orElseThrow(() -> new IllegalArgumentException("Payment not found"));
 
-        payment.setStatus("completed");
-        payment.setCompletedAt(LocalDateTime.now());
-
-        PartnerConfirmRequest partnerReq = new PartnerConfirmRequest();
-        partnerReq.setTradeNo(payment.getTradeNo());
-        partnerReq.setAmount(amountToCents(payment.getAmount()));
-
-        PartnerConfirmResponse partnerRes = partnerPaymentService.confirmPayment(partnerReq);
-        payment.setPartnerOrderId(partnerRes.getOrderId());
-        payment.setPartnerFrontendUrl(partnerRes.getFrontendUrl());
-        paymentRepository.save(payment);
-
-        return toCompleteResponse(payment);
+        if ("pending".equals(payment.getStatus())) {
+            payment.setStatus("cancelled");
+            paymentRepository.save(payment);
+        }
     }
 
     private PaymentCompleteResponse toCompleteResponse(PaymentRecord payment) {
@@ -152,5 +173,12 @@ public class LocalPaymentService {
             return base;
         }
         return base + separator + "paypalReturn=" + status + "&tradeNo=" + tradeNo;
+    }
+
+    private void markFailed(PaymentRecord payment) {
+        if (!"completed".equals(payment.getStatus()) && !"failed".equals(payment.getStatus())) {
+            payment.setStatus("failed");
+            paymentRepository.save(payment);
+        }
     }
 }

@@ -2,15 +2,15 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Shield, LogOut, Plus, Pencil, Trash2, Loader2, DollarSign, Settings, CreditCard } from "lucide-react";
+import { Shield, LogOut, Plus, Pencil, Trash2, Loader2, DollarSign, Settings, CreditCard, Search } from "lucide-react";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
-import { ageGroupApi, adminQuestionApi, answerApi, adminSettingsApi, paymentApi } from "@/services/api";
+import { ageGroupApi, adminPaymentApi, adminQuestionApi, answerApi, adminSettingsApi, paymentApi } from "@/services/api";
 import type { AdminQuestionDTO, CreateQuestionRequest, AgeGroup } from "@/types/api";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
-type Tab = "questions" | "ageGroups" | "answers" | "settings";
+type Tab = "questions" | "ageGroups" | "answers" | "orders" | "settings";
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
@@ -60,7 +60,7 @@ export default function AdminDashboard() {
 
       <div className="mx-auto max-w-[1400px] px-6 py-6">
         <div className="mb-6 flex gap-2 border-b border-[#E8E4DC]">
-          {(["questions", "ageGroups", "answers", "settings"] as Tab[]).map((tab) => (
+          {(["questions", "ageGroups", "answers", "orders", "settings"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -78,6 +78,7 @@ export default function AdminDashboard() {
         {activeTab === "questions" && <QuestionsTab />}
         {activeTab === "ageGroups" && <AgeGroupsTab />}
         {activeTab === "answers" && <AnswersTab />}
+        {activeTab === "orders" && <OrdersTab />}
         {activeTab === "settings" && <SettingsTab />}
       </div>
     </div>
@@ -606,6 +607,132 @@ function AnswersTab() {
           <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1} className="rounded-lg border border-[#E8E4DC] px-4 py-2 text-sm disabled:opacity-40">Previous</button>
           <span className="px-4 py-2 text-sm text-[#6B6560]">Page {page}</span>
           <button onClick={() => setPage(page + 1)} disabled={page * data.pageSize >= data.total} className="rounded-lg border border-[#E8E4DC] px-4 py-2 text-sm disabled:opacity-40">Next</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function OrdersTab() {
+  const { t } = useTranslation();
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState("");
+  const [keywordInput, setKeywordInput] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin", "payments", page, status, keyword],
+    queryFn: () => adminPaymentApi.list(page, 20, status || undefined, keyword || undefined),
+  });
+
+  const handleSearch = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    setPage(1);
+    setKeyword(keywordInput.trim());
+  };
+
+  const handleStatusChange = (nextStatus: string) => {
+    setPage(1);
+    setStatus(nextStatus);
+  };
+
+  const renderStatus = (paymentStatus: string) => {
+    const styleMap: Record<string, string> = {
+      pending: "bg-[#E8C547]/15 text-[#8A6B00]",
+      completed: "bg-green-100 text-green-700",
+      cancelled: "bg-slate-100 text-slate-600",
+      failed: "bg-red-100 text-red-600",
+    };
+    return (
+      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${styleMap[paymentStatus] || "bg-slate-100 text-slate-600"}`}>
+        {t(paymentStatus, paymentStatus)}
+      </span>
+    );
+  };
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center py-20"><Loader2 size={24} className="animate-spin text-[#E8C547]" /></div>;
+  }
+
+  return (
+    <div>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="font-['Fredoka'] text-lg text-[#2D2A26]">{t("orders", "Orders")}</h2>
+      </div>
+
+      <form onSubmit={handleSearch} className="mb-6 flex flex-col gap-3 rounded-xl border border-[#E8E4DC] bg-white p-5 md:flex-row md:items-end">
+        <div>
+          <label className="mb-1 block text-sm text-[#6B6560]">{t("paymentStatus", "Payment Status")}</label>
+          <select
+            value={status}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            className="w-full min-w-44 rounded-lg border border-[#E8E4DC] px-3 py-2 text-sm text-[#2D2A26] outline-none focus:border-[#E8C547]"
+          >
+            <option value="">{t("allStatuses", "All Statuses")}</option>
+            <option value="pending">{t("pending", "pending")}</option>
+            <option value="completed">{t("completed", "completed")}</option>
+            <option value="cancelled">{t("cancelled", "cancelled")}</option>
+            <option value="failed">{t("failed", "failed")}</option>
+          </select>
+        </div>
+
+        <div className="flex-1">
+          <label className="mb-1 block text-sm text-[#6B6560]">{t("search", "Search")}</label>
+          <input
+            value={keywordInput}
+            onChange={(e) => setKeywordInput(e.target.value)}
+            placeholder={t("searchOrder", "Search by order no or PayPal order id")}
+            className="w-full rounded-lg border border-[#E8E4DC] px-3 py-2 text-sm text-[#2D2A26] outline-none focus:border-[#E8C547]"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E8C547] px-5 py-2.5 font-medium text-[#2D2A26] transition-all hover:bg-[#e0bc3f]"
+        >
+          <Search size={16} />
+          {t("search", "Search")}
+        </button>
+      </form>
+
+      <div className="overflow-x-auto rounded-xl border border-[#E8E4DC] bg-white">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-[#E8E4DC] bg-[#FFFDF5]">
+              <th className="px-4 py-3 text-left font-medium text-[#6B6560]">{t("orderNo", "Order No")}</th>
+              <th className="px-4 py-3 text-left font-medium text-[#6B6560]">{t("paymentStatus", "Payment Status")}</th>
+              <th className="px-4 py-3 text-left font-medium text-[#6B6560]">{t("paymentAmount", "Amount")}</th>
+              <th className="px-4 py-3 text-left font-medium text-[#6B6560]">{t("paypalOrderId", "PayPal Order ID")}</th>
+              <th className="px-4 py-3 text-left font-medium text-[#6B6560]">{t("partnerOrderId", "Partner Order ID")}</th>
+              <th className="px-4 py-3 text-left font-medium text-[#6B6560]">{t("createdAt", "Created At")}</th>
+              <th className="px-4 py-3 text-left font-medium text-[#6B6560]">{t("completedAt", "Completed At")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data?.items?.map((payment) => (
+              <tr key={payment.id} className="border-b border-[#E8E4DC]/50 hover:bg-[#FFFDF5]/50">
+                <td className="px-4 py-3 font-medium text-[#2D2A26]">{payment.tradeNo}</td>
+                <td className="px-4 py-3">{renderStatus(payment.status)}</td>
+                <td className="px-4 py-3 text-[#2D2A26]">${payment.amount.toFixed(2)} {payment.currency}</td>
+                <td className="px-4 py-3 text-xs text-[#6B6560]">{payment.providerOrderId || "-"}</td>
+                <td className="px-4 py-3 text-xs text-[#6B6560]">{payment.partnerOrderId || "-"}</td>
+                <td className="px-4 py-3 text-xs text-[#6B6560]">{payment.createdAt ? new Date(payment.createdAt).toLocaleString() : "-"}</td>
+                <td className="px-4 py-3 text-xs text-[#6B6560]">{payment.completedAt ? new Date(payment.completedAt).toLocaleString() : "-"}</td>
+              </tr>
+            ))}
+            {(!data?.items || data.items.length === 0) && (
+              <tr>
+                <td colSpan={7} className="px-4 py-10 text-center text-[#6B6560]">{t("noOrdersFound", "No orders found")}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {data && data.total > data.pageSize && (
+        <div className="mt-4 flex justify-center gap-2">
+          <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1} className="rounded-lg border border-[#E8E4DC] px-4 py-2 text-sm disabled:opacity-40">{t("previous", "Previous")}</button>
+          <span className="px-4 py-2 text-sm text-[#6B6560]">Page {page}</span>
+          <button onClick={() => setPage(page + 1)} disabled={page * data.pageSize >= data.total} className="rounded-lg border border-[#E8E4DC] px-4 py-2 text-sm disabled:opacity-40">{t("next", "Next")}</button>
         </div>
       )}
     </div>
