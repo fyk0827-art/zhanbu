@@ -20,6 +20,9 @@ logs/
 !.env.example
 *.local
 
+# Playwright test artifacts
+.playwright-mcp/
+
 # OS/editor
 .DS_Store
 .idea/
