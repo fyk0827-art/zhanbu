@@ -1,0 +1,61 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "问答收集器" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - navigation [ref=e7]:
+          - link "首页" [ref=e8] [cursor=pointer]:
+            - /url: /
+          - button "浏览" [ref=e9] [cursor=pointer]
+          - button "管理员登录" [ref=e10] [cursor=pointer]:
+            - img [ref=e11]
+            - text: 管理员登录
+          - button "语言" [ref=e14] [cursor=pointer]:
+            - img [ref=e15]
+            - generic [ref=e18]: ZH
+    - generic [ref=e23]:
+      - generic [ref=e24]: 全球问答平台
+      - heading "分享你的故事" [level=1] [ref=e25]
+      - paragraph [ref=e26]: 参加我们有趣的年龄匹配问答测试，与世界分享你独特的视角——完全免费！
+      - button "开始测试" [ref=e28] [cursor=pointer]:
+        - text: 开始测试
+        - img [ref=e29]
+    - generic [ref=e32]:
+      - generic [ref=e33]:
+        - heading "如何运作" [level=2] [ref=e34]
+        - paragraph [ref=e35]: 三个简单步骤分享你的答案
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - img [ref=e39]
+          - generic [ref=e42]: "01"
+          - heading "告诉我们你的年龄" [level=3] [ref=e43]
+          - paragraph [ref=e44]: 回答一个简单的年龄问题，我们就能为你匹配适合的问题。
+        - generic [ref=e45]:
+          - img [ref=e47]
+          - generic [ref=e49]: "02"
+          - heading "回答问题" [level=3] [ref=e50]
+          - paragraph [ref=e51]: 我们会随机抽取适合你年龄段的问题，你可以按自己的节奏逐题回答。
+        - generic [ref=e52]:
+          - img [ref=e54]
+          - generic [ref=e57]: "03"
+          - heading "提交分享" [level=3] [ref=e58]
+          - paragraph [ref=e59]: 提交你的答案，与世界分享你的智慧。完全免费！
+    - generic [ref=e61]:
+      - heading "准备好开始了吗？" [level=2] [ref=e62]
+      - paragraph [ref=e63]: 立即参加测试，发现专为你年龄段精选的问题。
+      - button "立即开始测试" [ref=e64] [cursor=pointer]
+    - contentinfo [ref=e65]:
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - heading "问答收集器" [level=3] [ref=e69]
+            - paragraph [ref=e70]: 收集来自世界各地的智慧
+          - generic [ref=e71]:
+            - link "首页" [ref=e72] [cursor=pointer]:
+              - /url: /
+            - button "浏览" [ref=e73] [cursor=pointer]
+            - link "管理员登录" [ref=e74] [cursor=pointer]:
+              - /url: /admin
+        - paragraph [ref=e76]: © 2026 问答收集器. 版权所有。

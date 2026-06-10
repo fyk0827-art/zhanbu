@@ -25,6 +25,7 @@ public class LocalPaymentService {
     private final AgeGroupRepository ageGroupRepository;
     private final PartnerPaymentService partnerPaymentService;
     private final PayPalPaymentService payPalPaymentService;
+    private final FacebookConversionService facebookConversionService;
     private final com.qacollector.config.PayPalProperties payPalProperties;
     private final com.qacollector.config.PartnerProperties partnerProperties;
 
@@ -119,6 +120,12 @@ public class LocalPaymentService {
             payment.setPartnerOrderId(partnerRes.getOrderId());
             payment.setPartnerFrontendUrl(partnerRes.getFrontendUrl());
             paymentRepository.save(payment);
+
+            facebookConversionService.firePurchaseEvent(
+                payment.getTradeNo(),
+                payment.getAmount(),
+                payment.getCurrency()
+            );
 
             return toCompleteResponse(payment);
         } catch (RuntimeException ex) {

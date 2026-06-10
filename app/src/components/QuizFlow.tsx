@@ -6,6 +6,7 @@ import { questionApi, paymentApi, settingsApi } from "@/services/api";
 import type { QuestionDTO, SubmitAnswerRequest } from "@/types/api";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { normalizeLanguage } from "@/i18n";
+import { firePurchaseEvent } from "@/services/facebookPixel";
 
 declare global {
   interface Window {
@@ -469,6 +470,8 @@ export default function QuizFlow({ ageGroups, onClose }: QuizFlowProps) {
           setPaymentError("");
           const created = await paymentApi.create({ questionId: firstQ.id });
           paypalTradeNoRef.current = created.tradeNo;
+          sessionStorage.setItem("fbPurchaseAmount", String(displayAmount));
+          sessionStorage.setItem("fbPurchaseCurrency", paymentConfig?.currency || "USD");
           return created.paypalOrderId;
         },
         onApprove: async (data) => {
@@ -480,6 +483,9 @@ export default function QuizFlow({ ageGroups, onClose }: QuizFlowProps) {
               paypalOrderId: data.orderID,
             });
             if (completed.frontendUrl) {
+              const amount = parseFloat(sessionStorage.getItem("fbPurchaseAmount") || "0");
+              const currency = sessionStorage.getItem("fbPurchaseCurrency") || "USD";
+              firePurchaseEvent(amount, currency);
               window.location.href = `/partner-report?url=${encodeURIComponent(completed.frontendUrl)}`;
               return;
             }
@@ -531,6 +537,8 @@ export default function QuizFlow({ ageGroups, onClose }: QuizFlowProps) {
       });
       sessionStorage.setItem("pendingPayPalTradeNo", created.tradeNo);
       sessionStorage.setItem("pendingPayPalOrderId", created.paypalOrderId);
+      sessionStorage.setItem("fbPurchaseAmount", String(displayAmount));
+      sessionStorage.setItem("fbPurchaseCurrency", created.currency || "USD");
       window.location.href = created.approveUrl;
     } catch (err) {
       const message = err instanceof Error ? err.message : qc("paymentFailed");

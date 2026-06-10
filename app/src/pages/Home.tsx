@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Search, PenLine, Send } from "lucide-react";
 import { ageGroupApi, paymentApi } from "@/services/api";
+import { firePurchaseEvent } from "@/services/facebookPixel";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import QuizFlow from "@/components/QuizFlow";
@@ -65,6 +66,9 @@ export default function Home() {
       .then((completed) => {
         sessionStorage.removeItem("pendingPayPalTradeNo");
         sessionStorage.removeItem("pendingPayPalOrderId");
+        const amount = parseFloat(sessionStorage.getItem("fbPurchaseAmount") || "0");
+        const currency = sessionStorage.getItem("fbPurchaseCurrency") || "USD";
+        if (amount > 0) firePurchaseEvent(amount, currency);
         if (completed.frontendUrl) {
           window.location.href = `/partner-report?url=${encodeURIComponent(completed.frontendUrl)}`;
           return;

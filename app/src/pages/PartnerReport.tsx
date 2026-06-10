@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { paymentApi } from "@/services/api";
+import { firePurchaseEvent } from "@/services/facebookPixel";
 
 const ALLOWED_REPORT_ORIGIN = "http://39.97.224.240:8842";
 
@@ -56,6 +57,9 @@ export default function PartnerReport() {
       .then((completed) => {
         sessionStorage.removeItem("pendingPayPalTradeNo");
         sessionStorage.removeItem("pendingPayPalOrderId");
+        const amount = parseFloat(sessionStorage.getItem("fbPurchaseAmount") || "0");
+        const currency = sessionStorage.getItem("fbPurchaseCurrency") || "USD";
+        if (amount > 0) firePurchaseEvent(amount, currency);
         const nextReportUrl = parseAllowedReportUrl(completed.frontendUrl);
         if (!nextReportUrl) {
           setMessage("报告平台未返回有效链接。");

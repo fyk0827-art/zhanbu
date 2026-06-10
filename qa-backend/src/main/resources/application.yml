@@ -43,6 +43,10 @@ paypal:
   client-id: ${PAYPAL_CLIENT_ID:}
   client-secret: ${PAYPAL_CLIENT_SECRET:}
 
+facebook:
+  pixel-id: ${FACEBOOK_PIXEL_ID:1523243282664759}
+  access-token: ${FACEBOOK_ACCESS_TOKEN:EAAWMfhhWC8cBRtPie4R21It5AOpkQE3IfyFLZA2uRRzSnT1TOCAUlFBf0ACmHorSjuLdN0AscBFZAOz7K8rPZBdJ4jfuGwR7YoiS4FSmB4CYR4bv8wd5fZA3ygREKCk2GKHfF4H74zXEh2kpgOz71l9G7E7pVAqAMMtvzfZAk0oHMlNpmW8uviUxO2l5UBI3xMQZDZD}
+
 logging:
   level:
     com.qacollector: INFO
