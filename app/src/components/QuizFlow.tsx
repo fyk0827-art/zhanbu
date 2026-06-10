@@ -6,7 +6,7 @@ import { questionApi, paymentApi, settingsApi } from "@/services/api";
 import type { QuestionDTO, SubmitAnswerRequest } from "@/types/api";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { normalizeLanguage } from "@/i18n";
-import { firePurchaseEvent } from "@/services/facebookPixel";
+import { firePurchaseEvent, getFbc, getFbp } from "@/services/facebookPixel";
 
 declare global {
   interface Window {
@@ -481,6 +481,8 @@ export default function QuizFlow({ ageGroups, onClose }: QuizFlowProps) {
             const completed = await paymentApi.complete({
               tradeNo: paypalTradeNoRef.current,
               paypalOrderId: data.orderID,
+              fbc: getFbc(),
+              fbp: getFbp(),
             });
             if (completed.frontendUrl) {
               const amount = parseFloat(sessionStorage.getItem("fbPurchaseAmount") || "0");

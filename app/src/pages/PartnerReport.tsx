@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { paymentApi } from "@/services/api";
-import { firePurchaseEvent } from "@/services/facebookPixel";
+import { firePurchaseEvent, getFbc, getFbp } from "@/services/facebookPixel";
 
 const ALLOWED_REPORT_ORIGIN = "http://39.97.224.240:8842";
 
@@ -53,7 +53,7 @@ export default function PartnerReport() {
       return;
     }
 
-    paymentApi.complete({ tradeNo, paypalOrderId })
+    paymentApi.complete({ tradeNo, paypalOrderId, fbc: getFbc(), fbp: getFbp() })
       .then((completed) => {
         sessionStorage.removeItem("pendingPayPalTradeNo");
         sessionStorage.removeItem("pendingPayPalOrderId");

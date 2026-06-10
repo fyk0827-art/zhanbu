@@ -127,6 +127,8 @@ export interface PaymentCreateResponse {
 export interface PaymentCompleteRequest {
   tradeNo: string;
   paypalOrderId: string;
+  fbc?: string;
+  fbp?: string;
 }
 
 export interface PaymentCancelRequest {

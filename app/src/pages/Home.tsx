@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Search, PenLine, Send } from "lucide-react";
 import { ageGroupApi, paymentApi } from "@/services/api";
-import { firePurchaseEvent } from "@/services/facebookPixel";
+import { firePurchaseEvent, getFbc, getFbp } from "@/services/facebookPixel";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import QuizFlow from "@/components/QuizFlow";
@@ -62,7 +62,7 @@ export default function Home() {
     }
 
     toast.loading(t("confirmingPayment", "Confirming payment..."));
-    paymentApi.complete({ tradeNo, paypalOrderId })
+    paymentApi.complete({ tradeNo, paypalOrderId, fbc: getFbc(), fbp: getFbp() })
       .then((completed) => {
         sessionStorage.removeItem("pendingPayPalTradeNo");
         sessionStorage.removeItem("pendingPayPalOrderId");

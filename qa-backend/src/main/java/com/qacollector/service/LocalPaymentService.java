@@ -124,7 +124,9 @@ public class LocalPaymentService {
             facebookConversionService.firePurchaseEvent(
                 payment.getTradeNo(),
                 payment.getAmount(),
-                payment.getCurrency()
+                payment.getCurrency(),
+                req.getFbc(),
+                req.getFbp()
             );
 
             return toCompleteResponse(payment);
