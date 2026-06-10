@@ -8,4 +8,7 @@ public class PaymentCompleteRequest {
     private String paypalOrderId;
     private String fbc;
     private String fbp;
+    private String clientIpAddress;
+    private String clientUserAgent;
+    private String eventSourceUrl;
 }

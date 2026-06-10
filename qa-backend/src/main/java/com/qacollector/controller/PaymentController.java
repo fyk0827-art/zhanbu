@@ -2,6 +2,7 @@ package com.qacollector.controller;
 
 import com.qacollector.dto.*;
 import com.qacollector.service.LocalPaymentService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,11 @@ public class PaymentController {
     }
 
     @PostMapping("/complete")
-    public ApiResponse<PaymentCompleteResponse> complete(@RequestBody PaymentCompleteRequest req) {
+    public ApiResponse<PaymentCompleteResponse> complete(
+            @RequestBody PaymentCompleteRequest req,
+            HttpServletRequest request) {
+        req.setClientIpAddress(request.getRemoteAddr());
+        req.setClientUserAgent(request.getHeader("User-Agent"));
         return ApiResponse.ok(localPaymentService.completePayment(req));
     }
 

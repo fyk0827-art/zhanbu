@@ -483,6 +483,7 @@ export default function QuizFlow({ ageGroups, onClose }: QuizFlowProps) {
               paypalOrderId: data.orderID,
               fbc: getFbc(),
               fbp: getFbp(),
+              eventSourceUrl: window.location.href,
             });
             if (completed.frontendUrl) {
               const amount = parseFloat(sessionStorage.getItem("fbPurchaseAmount") || "0");

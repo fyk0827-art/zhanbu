@@ -121,12 +121,19 @@ public class LocalPaymentService {
             payment.setPartnerFrontendUrl(partnerRes.getFrontendUrl());
             paymentRepository.save(payment);
 
+            AgeGroup ageGroup = ageGroupRepository.findById(payment.getAgeGroupId()).orElse(null);
+            String contentName = ageGroup != null ? ageGroup.getName() : null;
+
             facebookConversionService.firePurchaseEvent(
                 payment.getTradeNo(),
                 payment.getAmount(),
                 payment.getCurrency(),
                 req.getFbc(),
-                req.getFbp()
+                req.getFbp(),
+                req.getClientIpAddress(),
+                req.getClientUserAgent(),
+                req.getEventSourceUrl(),
+                contentName
             );
 
             return toCompleteResponse(payment);

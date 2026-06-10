@@ -53,7 +53,7 @@ export default function PartnerReport() {
       return;
     }
 
-    paymentApi.complete({ tradeNo, paypalOrderId, fbc: getFbc(), fbp: getFbp() })
+    paymentApi.complete({ tradeNo, paypalOrderId, fbc: getFbc(), fbp: getFbp(), eventSourceUrl: window.location.href })
       .then((completed) => {
         sessionStorage.removeItem("pendingPayPalTradeNo");
         sessionStorage.removeItem("pendingPayPalOrderId");

@@ -25,7 +25,10 @@ public class FacebookConversionService {
     private final FacebookProperties facebookProperties;
     private final ObjectMapper objectMapper;
 
-    public void firePurchaseEvent(String tradeNo, BigDecimal amount, String currency, String fbc, String fbp) {
+    public void firePurchaseEvent(String tradeNo, BigDecimal amount, String currency,
+                                   String fbc, String fbp,
+                                   String clientIpAddress, String clientUserAgent,
+                                   String eventSourceUrl, String contentName) {
         String pixelId = facebookProperties.getPixelId();
         String accessToken = facebookProperties.getAccessToken();
         if (pixelId == null || pixelId.isBlank() || accessToken == null || accessToken.isBlank()) {
@@ -43,16 +46,22 @@ public class FacebookConversionService {
             data.put("event_time", System.currentTimeMillis() / 1000);
             data.put("event_id", tradeNo);
             data.put("action_source", "website");
+            if (eventSourceUrl != null && !eventSourceUrl.isBlank()) {
+                data.put("event_source_url", eventSourceUrl);
+            }
 
             Map<String, Object> userData = new LinkedHashMap<>();
             userData.put("external_id", tradeNo);
             if (fbc != null && !fbc.isBlank()) userData.put("fbc", fbc);
             if (fbp != null && !fbp.isBlank()) userData.put("fbp", fbp);
+            if (clientIpAddress != null && !clientIpAddress.isBlank()) userData.put("client_ip_address", clientIpAddress);
+            if (clientUserAgent != null && !clientUserAgent.isBlank()) userData.put("client_user_agent", clientUserAgent);
             data.put("user_data", userData);
 
             Map<String, Object> customData = new LinkedHashMap<>();
             customData.put("currency", currency != null ? currency : "USD");
             customData.put("value", amount.doubleValue());
+            if (contentName != null && !contentName.isBlank()) customData.put("content_name", contentName);
             data.put("custom_data", customData);
 
             Map<String, Object> body = new LinkedHashMap<>();

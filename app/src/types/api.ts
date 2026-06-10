@@ -129,6 +129,7 @@ export interface PaymentCompleteRequest {
   paypalOrderId: string;
   fbc?: string;
   fbp?: string;
+  eventSourceUrl?: string;
 }
 
 export interface PaymentCancelRequest {
