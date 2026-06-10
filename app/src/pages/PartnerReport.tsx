@@ -4,6 +4,7 @@ import { paymentApi } from "@/services/api";
 import { firePurchaseEvent } from "@/services/facebookPixel";
 
 const ALLOWED_REPORT_ORIGIN = "http://39.97.224.240:8842";
+const PARTNER_PROXY_PATH = "/proxy/report";
 
 function parseAllowedReportUrl(raw: string): string {
   if (!raw) return "";
@@ -11,7 +12,7 @@ function parseAllowedReportUrl(raw: string): string {
     const decoded = decodeURIComponent(raw);
     const url = new URL(decoded);
     if (url.origin !== ALLOWED_REPORT_ORIGIN) return "";
-    return url.toString();
+    return PARTNER_PROXY_PATH + url.pathname + url.search + url.hash;
   } catch {
     return "";
   }
