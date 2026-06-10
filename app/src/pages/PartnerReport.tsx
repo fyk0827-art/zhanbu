@@ -4,7 +4,6 @@ import { paymentApi } from "@/services/api";
 import { firePurchaseEvent } from "@/services/facebookPixel";
 
 const ALLOWED_REPORT_ORIGIN = "http://39.97.224.240:8842";
-const PARTNER_PROXY_PATH = "/proxy/report";
 
 function parseAllowedReportUrl(raw: string): string {
   if (!raw) return "";
@@ -12,7 +11,7 @@ function parseAllowedReportUrl(raw: string): string {
     const decoded = decodeURIComponent(raw);
     const url = new URL(decoded);
     if (url.origin !== ALLOWED_REPORT_ORIGIN) return "";
-    return PARTNER_PROXY_PATH + url.pathname + url.search + url.hash;
+    return url.toString();
   } catch {
     return "";
   }
@@ -93,12 +92,7 @@ export default function PartnerReport() {
     );
   }
 
-  return (
-    <iframe
-      title="Partner report"
-      src={reportUrl}
-      className="h-screen w-screen border-0 bg-white"
-      referrerPolicy="no-referrer-when-downgrade"
-    />
-  );
+  // Redirect to the partner report site directly (cannot use iframe due to SPA API path conflicts)
+  window.location.href = reportUrl;
+  return null;
 }
