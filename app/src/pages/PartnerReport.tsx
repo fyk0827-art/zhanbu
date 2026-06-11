@@ -8,7 +8,6 @@ function parseAllowedReportUrl(raw: string): string {
   try {
     const decoded = decodeURIComponent(raw);
     const url = new URL(decoded);
-    // Params are in the hash fragment (#/?orderId=...&token=...)
     const hash = url.hash.replace(/^#\/?\??/, "");
     const hashParams = new URLSearchParams(hash);
     const orderId = hashParams.get("orderId");
@@ -24,7 +23,7 @@ export default function PartnerReport() {
   const handledReturn = useRef(false);
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const [reportUrl, setReportUrl] = useState(() => parseAllowedReportUrl(params.get("url") || ""));
-  const [message, setMessage] = useState(reportUrl ? "" : "正在确认支付...");
+  const [message, setMessage] = useState(reportUrl ? "" : "Confirming payment...");
   const [loading, setLoading] = useState(!reportUrl);
 
   useEffect(() => {
@@ -32,7 +31,7 @@ export default function PartnerReport() {
     const paypalReturn = params.get("paypalReturn");
     if (!paypalReturn) {
       setLoading(false);
-      setMessage("报告链接无效，请重新完成支付。");
+      setMessage("Invalid report link. Please complete payment again.");
       return;
     }
 
@@ -45,14 +44,14 @@ export default function PartnerReport() {
       sessionStorage.removeItem("pendingPayPalTradeNo");
       sessionStorage.removeItem("pendingPayPalOrderId");
       setLoading(false);
-      setMessage("支付已取消，请返回重新发起支付。");
+      setMessage("Payment was cancelled.");
       return;
     }
 
     const paypalOrderId = params.get("token") || sessionStorage.getItem("pendingPayPalOrderId") || "";
     if (!tradeNo || !paypalOrderId) {
       setLoading(false);
-      setMessage("支付信息缺失，请重新完成支付。");
+      setMessage("Payment information missing.");
       return;
     }
 
@@ -65,7 +64,7 @@ export default function PartnerReport() {
         if (amount > 0) firePurchaseEvent(amount, currency);
         const nextReportUrl = parseAllowedReportUrl(completed.frontendUrl);
         if (!nextReportUrl) {
-          setMessage("报告平台未返回有效链接。");
+          setMessage("Report platform did not return a valid link.");
           setLoading(false);
           return;
         }
@@ -78,7 +77,7 @@ export default function PartnerReport() {
         );
       })
       .catch((err) => {
-        const text = err instanceof Error ? err.message : "支付确认失败，请重试。";
+        const text = err instanceof Error ? err.message : "Payment confirmation failed. Please try again.";
         setMessage(text);
         setLoading(false);
       });
@@ -95,7 +94,6 @@ export default function PartnerReport() {
     );
   }
 
-  // Redirect to the partner report site directly (cannot use iframe due to SPA API path conflicts)
   window.location.href = reportUrl;
   return null;
 }
