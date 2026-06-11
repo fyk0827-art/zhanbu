@@ -8,8 +8,13 @@ function parseAllowedReportUrl(raw: string): string {
   try {
     const decoded = decodeURIComponent(raw);
     const url = new URL(decoded);
-    // Redirect to our local report path
-    return "/report/#/?orderId=" + url.searchParams.get("orderId") + "&token=" + url.searchParams.get("token");
+    // Params are in the hash fragment (#/?orderId=...&token=...)
+    const hash = url.hash.replace(/^#\/?\??/, "");
+    const hashParams = new URLSearchParams(hash);
+    const orderId = hashParams.get("orderId");
+    const token = hashParams.get("token");
+    if (!orderId || !token) return "";
+    return "/report/#/?orderId=" + orderId + "&token=" + token;
   } catch {
     return "";
   }

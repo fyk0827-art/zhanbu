@@ -34,8 +34,8 @@ admin:
 
 # Partner report platform (confirm-payment)
 partner:
-  api-base-url: http://39.97.224.240:8848
-  webhook-secret: ${PARTNER_WEBHOOK_SECRET:}
+  api-base-url: http://127.0.0.1:8848
+  webhook-secret: ivuSyKbId9yfrQTwgP4crplwpOz8rwkQI3NRP9k6qjI=
   standard-amount-cents: 1900  # 默认金额；confirm-payment 会传实际收款金额
 
 paypal:
