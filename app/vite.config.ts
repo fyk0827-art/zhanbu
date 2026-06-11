@@ -7,11 +7,16 @@ import { defineConfig } from "vite"
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    devServer({ entry: "api/boot.ts", exclude: [/^\/(?!api\/).*$/] }),
     react(),
   ],
   server: {
     port: 3000,
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:19081",
+        changeOrigin: true,
+      },
+    },
   },
   resolve: {
     alias: {
