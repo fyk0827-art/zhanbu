@@ -3,18 +3,13 @@ import { Loader2 } from "lucide-react";
 import { paymentApi } from "@/services/api";
 import { firePurchaseEvent, getFbc, getFbp } from "@/services/facebookPixel";
 
-const ALLOWED_REPORT_ORIGINS = [
-  "http://39.97.224.240:8842",
-  "http://localhost:8842",
-];
-
 function parseAllowedReportUrl(raw: string): string {
   if (!raw) return "";
   try {
     const decoded = decodeURIComponent(raw);
     const url = new URL(decoded);
-    if (!ALLOWED_REPORT_ORIGINS.includes(url.origin)) return "";
-    return url.toString();
+    // Redirect to our local report path
+    return "/report/#/?orderId=" + url.searchParams.get("orderId") + "&token=" + url.searchParams.get("token");
   } catch {
     return "";
   }
