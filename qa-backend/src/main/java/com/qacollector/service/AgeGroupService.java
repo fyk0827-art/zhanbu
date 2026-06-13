@@ -14,8 +14,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AgeGroupService {
     private final AgeGroupRepository repository;
+    private final DomainConfigService domainConfigService;
 
     public List<AgeGroupDTO> listAll() {
+        return listAll(null);
+    }
+
+    public List<AgeGroupDTO> listAll(String host) {
+        BigDecimal domainPrice = host != null ? domainConfigService.resolvePrice(host, null) : null;
         List<AgeGroup> groups = repository.findAllByOrderBySortOrderAsc();
         List<AgeGroupDTO> result = new ArrayList<>();
         for (AgeGroup g : groups) {
@@ -24,7 +30,7 @@ public class AgeGroupService {
             dto.setName(g.getName());
             dto.setMinAge(g.getMinAge());
             dto.setMaxAge(g.getMaxAge());
-            dto.setPrice(g.getPrice());
+            dto.setPrice(domainPrice != null ? domainPrice : g.getPrice());
             dto.setSortOrder(g.getSortOrder());
             result.add(dto);
         }

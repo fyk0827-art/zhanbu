@@ -172,6 +172,13 @@ export interface PaymentResponse {
   status: string;
 }
 
+export interface DomainConfig {
+  id: number;
+  domain: string;
+  price: number;
+  paypalMode: string;
+}
+
 export interface PartnerConfirmRequest {
   tradeNo: string;
   amount?: number;

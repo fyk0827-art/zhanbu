@@ -144,6 +144,15 @@ export const adminPaymentApi = {
 };
 
 // ======== Payment API (server-side mock/live) ========
+export const domainConfigApi = {
+  list: () => get<DomainConfig[]>("/admin/domain-configs"),
+  create: (req: { domain: string; price: number; paypalMode?: string }) =>
+    post<DomainConfig>("/admin/domain-configs", req),
+  update: (id: number, req: { price?: number; paypalMode?: string }) =>
+    put<DomainConfig>(`/admin/domain-configs/${id}`, req),
+  delete: (id: number) => del<void>(`/admin/domain-configs/${id}`),
+};
+
 export const paymentApi = {
   config: () => get<PaymentConfig>("/payments/config"),
   create: (req: PaymentCreateRequest) =>

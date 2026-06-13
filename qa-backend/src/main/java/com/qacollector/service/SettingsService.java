@@ -5,6 +5,8 @@ import com.qacollector.dto.PublicSettingsDTO;
 import com.qacollector.dto.UpdateSettingsRequest;
 import com.qacollector.entity.AppSetting;
 import com.qacollector.repository.AppSettingRepository;
+import com.qacollector.config.PayPalProperties;
+import com.qacollector.config.FacebookProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,7 @@ public class SettingsService {
     public static final String KEY_PAYMENT_MODE = "payment_mode";
 
     private final AppSettingRepository repository;
+    private final PayPalProperties payPalProperties;
 
     public int getQuizQuestionCount() {
         return parseInt(getValue(KEY_QUIZ_QUESTION_COUNT, "5"), 5, 1, 20);
@@ -38,7 +41,7 @@ public class SettingsService {
     public AdminSettingsDTO getAdminSettings() {
         AdminSettingsDTO dto = new AdminSettingsDTO();
         dto.setQuizQuestionCount(getQuizQuestionCount());
-        dto.setPaymentMode(getPaymentMode());
+        dto.setPaymentMode(payPalProperties.getMode());
         return dto;
     }
 
