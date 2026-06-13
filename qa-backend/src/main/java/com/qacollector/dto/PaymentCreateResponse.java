@@ -12,4 +12,5 @@ public class PaymentCreateResponse {
     private BigDecimal amount;
     private String currency;
     private String status;
+    private String frontendUrl;
 }

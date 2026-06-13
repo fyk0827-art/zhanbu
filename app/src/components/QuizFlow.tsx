@@ -538,6 +538,7 @@ export default function QuizFlow({ ageGroups, onClose }: QuizFlowProps) {
         returnUrl: baseUrl,
         cancelUrl: baseUrl,
       });
+
       sessionStorage.setItem("pendingPayPalTradeNo", created.tradeNo);
       sessionStorage.setItem("pendingPayPalOrderId", created.paypalOrderId);
       sessionStorage.setItem("fbPurchaseAmount", String(displayAmount));
@@ -723,6 +724,7 @@ export default function QuizFlow({ ageGroups, onClose }: QuizFlowProps) {
                 >
                   {startingPayment ? <Loader2 size={22} className="animate-spin" /> : <CreditCard size={24} />}
                   PayPal
+                  <span className="text-sm font-medium">${price}</span>
                 </button>
               ) : (
                 <p className="text-sm text-[#E07A5F]">{qc("paypalNotConfigured")}</p>

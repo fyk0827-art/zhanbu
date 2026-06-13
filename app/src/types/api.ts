@@ -117,11 +117,12 @@ export interface PaymentCreateRequest {
 
 export interface PaymentCreateResponse {
   tradeNo: string;
-  paypalOrderId: string;
-  approveUrl: string;
+  paypalOrderId?: string;
+  approveUrl?: string;
   amount: number;
   currency: string;
   status: string;
+  frontendUrl?: string;
 }
 
 export interface PaymentCompleteRequest {
