@@ -24,159 +24,10 @@ export default function AdminDashboard() {
         <div className="absolute right-4 top-4 md:right-6 md:top-6">
           <LanguageSwitcher />
         </div>
-      )}
-    </div>
-  );
-}
-
-function DomainsTab() {
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const [newDomain, setNewDomain] = useState("");
-  const [newPrice, setNewPrice] = useState("");
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editPrice, setEditPrice] = useState("");
-
-  const { data: domains, isLoading } = useQuery({
-    queryKey: ["admin", "domainConfigs"],
-    queryFn: domainConfigApi.list,
-  });
-
-  const createMutation = useMutation({
-    mutationFn: () => domainConfigApi.create({
-      domain: newDomain.trim().toLowerCase(),
-      price: parseFloat(newPrice),
-      paypalMode: "sandbox",
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "domainConfigs"] });
-      setNewDomain("");
-      setNewPrice("");
-      toast.success(t("domainCreated", "Domain config created"));
-    },
-    onError: (err: Error) => toast.error(err.message),
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: (params: { id: number; price: number }) =>
-      domainConfigApi.update(params.id, { price: params.price }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "domainConfigs"] });
-      setEditingId(null);
-      toast.success(t("domainUpdated", "Domain config updated"));
-    },
-    onError: (err: Error) => toast.error(err.message),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => domainConfigApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "domainConfigs"] });
-      toast.success(t("domainDeleted", "Domain config deleted"));
-    },
-    onError: (err: Error) => toast.error(err.message),
-  });
-
-  return (
-    <div className="mb-6 rounded-xl border border-[#E8E4DC] bg-white p-5">
-      <div className="mb-4 flex items-center gap-2">
-        <DollarSign size={20} className="text-[#E8C547]" />
-        <h2 className="font-['Fredoka'] text-lg text-[#2D2A26]">{t("domainConfigs", "Domain Price Config")}</h2>
       </div>
-      <p className="mb-6 text-sm text-[#6B6560]">{t("domainConfigsDesc", "Configure different prices for different domains/subdomains. The price is applied based on the Host header of the request.")}</p>
+    );
+  }
 
-      {/* Add new domain */}
-      <div className="mb-6 flex flex-wrap items-end gap-3 rounded-lg border border-[#E8E4DC] bg-[#FFFDF5] p-4">
-        <div>
-          <label className="mb-1 block text-xs text-[#6B6560]">{t("domain", "Domain")}</label>
-          <input
-            type="text"
-            value={newDomain}
-            onChange={(e) => setNewDomain(e.target.value)}
-            placeholder="e.g. test.divinlove.com"
-            className="w-64 rounded-lg border border-[#E8E4DC] px-3 py-2 text-sm text-[#2D2A26] outline-none focus:border-[#E8C547]"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-xs text-[#6B6560]">{t("price", "Price ($)")}</label>
-          <input
-            type="number"
-            step="0.01"
-            min="0.01"
-            value={newPrice}
-            onChange={(e) => setNewPrice(e.target.value)}
-            placeholder="0.01"
-            className="w-28 rounded-lg border border-[#E8E4DC] px-3 py-2 text-sm text-[#2D2A26] outline-none focus:border-[#E8C547]"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={() => createMutation.mutate()}
-          disabled={!newDomain || !newPrice || createMutation.isPending}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#E8C547] px-4 py-2 text-sm font-medium text-[#2D2A26] transition-all hover:bg-[#e0bc3f] disabled:opacity-60"
-        >
-          {createMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
-          {t("add", "Add")}
-        </button>
-      </div>
-
-      {/* Domain list */}
-      {isLoading ? (
-        <div className="flex justify-center py-8"><Loader2 size={24} className="animate-spin text-[#E8C547]" /></div>
-      ) : !domains || domains.length === 0 ? (
-        <p className="py-8 text-center text-sm text-[#6B6560]">{t("noDomainConfigs", "No domain configurations yet. Add one above.")}</p>
-      ) : (
-        <div className="space-y-2">
-          {domains.map((d) => (
-            <div key={d.id} className="flex items-center gap-4 rounded-lg border border-[#E8E4DC] px-4 py-3">
-              <span className="flex-1 text-sm font-medium text-[#2D2A26]">{d.domain}</span>
-              {editingId === d.id ? (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    value={editPrice}
-                    onChange={(e) => setEditPrice(e.target.value)}
-                    className="w-24 rounded-lg border border-[#E8E4DC] px-2 py-1 text-sm outline-none focus:border-[#E8C547]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => updateMutation.mutate({ id: d.id, price: parseFloat(editPrice) })}
-                    className="rounded bg-[#81B29A] px-3 py-1 text-xs text-white hover:bg-[#6da085]"
-                  >
-                    {t("save", "Save")}
-                  </button>
-                  <button type="button" onClick={() => setEditingId(null)} className="px-2 py-1 text-xs text-[#6B6560]">
-                    {t("cancel", "Cancel")}
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-semibold text-[#2D2A26]">${d.price.toFixed(2)}</span>
-                  <button
-                    type="button"
-                    onClick={() => { setEditingId(d.id); setEditPrice(String(d.price)); }}
-                    className="rounded p-1 text-[#6B6560] hover:text-[#2D2A26]"
-                  >
-                    <Pencil size={14} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { if (confirm(t("deleteConfirm", "Delete this domain config?"))) deleteMutation.mutate(d.id); }}
-                    className="rounded p-1 text-[#E07A5F] hover:text-[#c96a4f]"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
   if (!admin) {
     navigate("/admin");
@@ -887,6 +738,154 @@ function OrdersTab() {
           <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1} className="rounded-lg border border-[#E8E4DC] px-4 py-2 text-sm disabled:opacity-40">{t("previous", "Previous")}</button>
           <span className="px-4 py-2 text-sm text-[#6B6560]">Page {page}</span>
           <button onClick={() => setPage(page + 1)} disabled={page * data.pageSize >= data.total} className="rounded-lg border border-[#E8E4DC] px-4 py-2 text-sm disabled:opacity-40">{t("next", "Next")}</button>
+        </div>
+      )}
+    </div>
+  );
+}
+function DomainsTab() {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [newDomain, setNewDomain] = useState("");
+  const [newPrice, setNewPrice] = useState("");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editPrice, setEditPrice] = useState("");
+
+  const { data: domains, isLoading } = useQuery({
+    queryKey: ["admin", "domainConfigs"],
+    queryFn: domainConfigApi.list,
+  });
+
+  const createMutation = useMutation({
+    mutationFn: () => domainConfigApi.create({
+      domain: newDomain.trim().toLowerCase(),
+      price: parseFloat(newPrice),
+      paypalMode: "sandbox",
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "domainConfigs"] });
+      setNewDomain("");
+      setNewPrice("");
+      toast.success(t("domainCreated", "Domain config created"));
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (params: { id: number; price: number }) =>
+      domainConfigApi.update(params.id, { price: params.price }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "domainConfigs"] });
+      setEditingId(null);
+      toast.success(t("domainUpdated", "Domain config updated"));
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => domainConfigApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "domainConfigs"] });
+      toast.success(t("domainDeleted", "Domain config deleted"));
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  return (
+    <div className="mb-6 rounded-xl border border-[#E8E4DC] bg-white p-5">
+      <div className="mb-4 flex items-center gap-2">
+        <DollarSign size={20} className="text-[#E8C547]" />
+        <h2 className="font-['Fredoka'] text-lg text-[#2D2A26]">{t("domainConfigs", "Domain Price Config")}</h2>
+      </div>
+      <p className="mb-6 text-sm text-[#6B6560]">{t("domainConfigsDesc", "Configure different prices for different domains/subdomains. The price is applied based on the Host header of the request.")}</p>
+
+      {/* Add new domain */}
+      <div className="mb-6 flex flex-wrap items-end gap-3 rounded-lg border border-[#E8E4DC] bg-[#FFFDF5] p-4">
+        <div>
+          <label className="mb-1 block text-xs text-[#6B6560]">{t("domain", "Domain")}</label>
+          <input
+            type="text"
+            value={newDomain}
+            onChange={(e) => setNewDomain(e.target.value)}
+            placeholder="e.g. test.divinlove.com"
+            className="w-64 rounded-lg border border-[#E8E4DC] px-3 py-2 text-sm text-[#2D2A26] outline-none focus:border-[#E8C547]"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-[#6B6560]">{t("price", "Price ($)")}</label>
+          <input
+            type="number"
+            step="0.01"
+            min="0.01"
+            value={newPrice}
+            onChange={(e) => setNewPrice(e.target.value)}
+            placeholder="0.01"
+            className="w-28 rounded-lg border border-[#E8E4DC] px-3 py-2 text-sm text-[#2D2A26] outline-none focus:border-[#E8C547]"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => createMutation.mutate()}
+          disabled={!newDomain || !newPrice || createMutation.isPending}
+          className="inline-flex items-center gap-2 rounded-lg bg-[#E8C547] px-4 py-2 text-sm font-medium text-[#2D2A26] transition-all hover:bg-[#e0bc3f] disabled:opacity-60"
+        >
+          {createMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+          {t("add", "Add")}
+        </button>
+      </div>
+
+      {/* Domain list */}
+      {isLoading ? (
+        <div className="flex justify-center py-8"><Loader2 size={24} className="animate-spin text-[#E8C547]" /></div>
+      ) : !domains || domains.length === 0 ? (
+        <p className="py-8 text-center text-sm text-[#6B6560]">{t("noDomainConfigs", "No domain configurations yet. Add one above.")}</p>
+      ) : (
+        <div className="space-y-2">
+          {domains.map((d) => (
+            <div key={d.id} className="flex items-center gap-4 rounded-lg border border-[#E8E4DC] px-4 py-3">
+              <span className="flex-1 text-sm font-medium text-[#2D2A26]">{d.domain}</span>
+              {editingId === d.id ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={editPrice}
+                    onChange={(e) => setEditPrice(e.target.value)}
+                    className="w-24 rounded-lg border border-[#E8E4DC] px-2 py-1 text-sm outline-none focus:border-[#E8C547]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => updateMutation.mutate({ id: d.id, price: parseFloat(editPrice) })}
+                    className="rounded bg-[#81B29A] px-3 py-1 text-xs text-white hover:bg-[#6da085]"
+                  >
+                    {t("save", "Save")}
+                  </button>
+                  <button type="button" onClick={() => setEditingId(null)} className="px-2 py-1 text-xs text-[#6B6560]">
+                    {t("cancel", "Cancel")}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-[#2D2A26]">${d.price.toFixed(2)}</span>
+                  <button
+                    type="button"
+                    onClick={() => { setEditingId(d.id); setEditPrice(String(d.price)); }}
+                    className="rounded p-1 text-[#6B6560] hover:text-[#2D2A26]"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { if (confirm(t("deleteConfirm", "Delete this domain config?"))) deleteMutation.mutate(d.id); }}
+                    className="rounded p-1 text-[#E07A5F] hover:text-[#c96a4f]"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
