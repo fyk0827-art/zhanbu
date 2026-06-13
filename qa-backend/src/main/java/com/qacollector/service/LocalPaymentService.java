@@ -26,6 +26,7 @@ public class LocalPaymentService {
     private final PartnerPaymentService partnerPaymentService;
     private final PayPalPaymentService payPalPaymentService;
     private final FacebookConversionService facebookConversionService;
+    private final DomainConfigService domainConfigService;
     private final com.qacollector.config.PayPalProperties payPalProperties;
     private final com.qacollector.config.PartnerProperties partnerProperties;
 
@@ -40,6 +41,11 @@ public class LocalPaymentService {
 
     @Transactional
     public PaymentCreateResponse createPayment(PaymentCreateRequest req) {
+        return createPayment(req, null);
+    }
+
+    @Transactional
+    public PaymentCreateResponse createPayment(PaymentCreateRequest req, String host) {
         if (req.getQuestionId() == null) {
             throw new IllegalArgumentException("questionId is required");
         }
@@ -51,7 +57,7 @@ public class LocalPaymentService {
             .orElseThrow(() -> new IllegalArgumentException("Age group not found"));
 
         String tradeNo = "pay_" + System.currentTimeMillis() + "_" + UUID.randomUUID().toString().substring(0, 8);
-        BigDecimal amount = ageGroup.getPrice();
+        BigDecimal amount = domainConfigService.resolvePrice(host, ageGroup.getPrice());
         int amountCents = amountToCents(amount);
         String returnUrl = normalizeReturnUrl(req.getReturnUrl(), tradeNo, "success");
         String cancelUrl = normalizeReturnUrl(req.getCancelUrl(), tradeNo, "cancel");

@@ -20,8 +20,11 @@ public class PaymentController {
     }
 
     @PostMapping("/create")
-    public ApiResponse<PaymentCreateResponse> create(@RequestBody PaymentCreateRequest req) {
-        return ApiResponse.ok(localPaymentService.createPayment(req));
+    public ApiResponse<PaymentCreateResponse> create(
+            @RequestBody PaymentCreateRequest req,
+            HttpServletRequest request) {
+        String host = request.getHeader("Host");
+        return ApiResponse.ok(localPaymentService.createPayment(req, host));
     }
 
     @PostMapping("/complete")
